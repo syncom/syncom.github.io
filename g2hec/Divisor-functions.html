@@ -1,0 +1,130 @@
+<html lang="en">
+<head>
+<title>Divisor functions - The Genus 2 Crypto C++ Library v0.1.2</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Genus 2 Crypto C++ Library v0.1.2">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Genus-2-curve-functions.html#Genus-2-curve-functions" title="Genus 2 curve functions">
+<link rel="next" href="Divisor-arithmetic.html#Divisor-arithmetic" title="Divisor arithmetic">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Divisor-functions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Divisor-arithmetic.html#Divisor-arithmetic">Divisor arithmetic</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Genus-2-curve-functions.html#Genus-2-curve-functions">Genus 2 curve functions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">6 Divisor functions</h2>
+
+<p>A divisor (class) is a pair of polynomials [u(x), v(x)] over
+GF(q)
+with \degv&lt;\degu\le 2 so that they satisfy certain conditions
+related to the curve C.  Therefore, every divisor (class) has a
+curve to associate with.  G2HEC use a C++ class <code>divisor</code> to hold
+a divisor.
+
+   <p><br>
+For cryptographic purposes, G2HEC does not support the existence of divisors
+associated with different curves in the same running process. It implements
+the associated genus 2 curve as a static data member of the <code>divisor</code>
+class.  The client program only needs to set the curve once for a divisor, and
+it works for all divisors.  A curve change for one divisor in a program will
+cause all divisors in the same program to switch to the new curve.  This is
+another important convention of G2HEC.
+
+   <p><br>
+We list some of the <code>divisor</code> class's public member functions as follows.
+
+   <p><br>
+<code>divisor()</code>: <br>
+default constructor; sets u(x) = 1, v(x) = 0, and associated curve
+as y^2 = 0. A divisor is not valid by default.
+
+   <p><br>
+<code>divisor(const poly_tc&amp; polyu, const poly_tc&amp; polyv, const g2hcurve&amp; curve)</code>: <br>
+constructor; set u(x) = <code>polyu</code>, v(x) = <code>polyv</code>, and
+associated curve to <code>curve</code>.
+
+   <p><br>
+<code>divisor(const divisor&amp; div)</code>:<br>
+copy constructor.
+
+   <p><br>
+<code>void set_upoly(poly_tc&amp; poly)</code>: <br>
+sets u(x) to <code>poly</code> for the divisor.
+
+   <p><br>
+<code>void set_vpoly(poly_tc&amp; poly)</code>: <br>
+sets v(x) to <code>poly</code> for the divisor.
+
+   <p><br>
+<code>void set_curve(const g2hcurve&amp; curve)</code>: <br>
+sets the associated curve to <code>curve</code> for divisor.  The curve does
+not need to be a valid genus 2 curve.
+
+   <p><br>
+<code>void update()</code>: <br>
+This function checks and updates information related to the divisor.  It must
+be called by a client program after any <code>set_</code> routine is called. 
+Otherwise error make occur when operations on divisor are performed.
+
+   <p><br>
+<code>const poly_tc&amp; get_upoly()</code>: <br>
+returns u(x) of the divisor.
+
+   <p><br>
+<code>const poly_tc&amp; get_vpoly()</code>: <br>
+returns v(x) of the divisor.
+
+   <p><br>
+<code>const g2hcurve&amp; get_curve()</code>: <br>
+returns the associated curve of the divisor.
+
+   <p><br>
+<code>bool_t is_valid_divisor()</code>: <br>
+returns <code>TRUE</code> is the representation of the divisor is valid, <code>FALSE</code>
+otherwise.
+
+   <p><br>
+<code>bool_t is_unit()</code>: <br>
+tests if the divisor is the unit divisor [1, 0].
+
+   <p><br>
+<code>set_unit()</code>: <br>
+sets the divisor to the unit divisor [1, 0].
+
+   <p><br>
+You can write <code>divisor1 = divisor2</code> to assign the value of <code>divisor2</code>
+to <code>divisor1</code>.  <code>divisor2</code> can be either valid or invalid.
+
+   <p><br>
+You can do comparisons like <code>divisor1 == divisor2</code> or
+<code>divisor1 != divisor2</code> to test if two divisors are the same. Divisors
+do not need to be valid for such comparisons.
+
+   <p><br>
+There is also a non-member function
+<div align="center"><code>bool_t on_same_curve(const divisor&amp; a, const divisor&amp; b)</code></div>
+<p>that tests if two divisors <code>a</code> and <code>b</code> have the same associated
+curve.  According to the way G2HEC implements the <code>divisor</code> class,
+this function always returns <code>TRUE</code>. Therefore this test is redundant.
+
+   </body></html>
+

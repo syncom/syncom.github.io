@@ -1,0 +1,108 @@
+<html lang="en">
+<head>
+<title>Genus 2 curve functions - The Genus 2 Crypto C++ Library v0.1.2</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Genus 2 Crypto C++ Library v0.1.2">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Tutorial.html#Tutorial" title="Tutorial">
+<link rel="next" href="Divisor-functions.html#Divisor-functions" title="Divisor functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Genus-2-curve-functions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Divisor-functions.html#Divisor-functions">Divisor functions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Tutorial.html#Tutorial">Tutorial</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">5 Genus 2 curve functions</h2>
+
+<p>We only consider the so-called &ldquo;imaginary&rdquo; genus 2 curves, i.e., curves given
+by the equation
+<div align="center">C: y^2 + h(x) y = f(x),</div>
+<p>with \degh\le 2 and \degf = 5.  We also require that
+C
+be nonsingular and the leading coefficient of f(x) be 1.
+
+   <p><br>
+Types <code>field_t</code> and <code>poly_t</code> are for the field element
+type and the corresponding polynomial type, respectively. They are defined
+in the header file <code>include/g2hec_nsfieldtype.h</code>. Type <code>poly_tc</code>
+is the type <code>const poly_t</code>.
+
+   <p><br>
+A genus 2 curve is stored in the <code>g2hcurve</code> class.
+
+   <p><br>
+Below are some of the class's public member functions. They are exported in
+the file <code>include/g2hec_Genus2_ops.h</code>.
+
+   <p><br>
+<code>g2hcurve()</code>: <br>
+default constructor; set curve to y^2 = 0.
+
+   <p><br>
+<code>g2hcurve(const poly_tc&amp; poly1, const poly_tc&amp; poly2)</code>: <br>
+constructor; sets curve to y^2 + <code>poly2</code>*y = <code>poly1</code>.
+
+   <p><br>
+<code>g2hcurve(const g2hcurve&amp; hcurve)</code>: <br>
+copy constructor.
+
+   <p><br>
+<code>void set_f(const poly_tc&amp; poly)</code>: <br>
+sets f(x) to <code>poly</code>.
+
+   <p><br>
+<code>void set_h(const poly_tc&amp; poly)</code>: <br>
+sets h(x) to <code>poly</code>.
+
+   <p><br>
+<code>void update()</code>: <br>
+checks and set internal flags to determine whether
+the curve is nonsingular and of genus 2.  This function MUST be called
+immediately after the curve has been changed by <code>set_f()</code>,
+<code>set_h()</code>, or/and assignment, and before any further operations
+related to the curve. This is very important to remember, otherwise error
+may occur.
+
+   <p><br>
+<code>const poly_tc&amp; get_f()</code>: <br>
+returns reference to polynomial f(x).
+
+   <p><br>
+<code>const poly_tc&amp; get_h()</code>: <br>
+returns reference to polynomial h(x).
+
+   <p><br>
+<code>bool_t is_valid_curve()</code>: <br>
+returns TRUE is curve is nonsingular, genus 2, and f(x) is monic.
+
+   <p><br>
+You can also write <code>curve1 = curve2</code> naturally to set the value of
+<code>curve1</code> to be the same as <code>curve2</code>. It is not needed that
+<code>curve2</code> be valid for this assignment.
+
+   <p><br>
+You can do comparisons like
+<code>curve1 == curve2</code> or <code>curve1 != curve2</code> to test if two curves
+are the same.  Curves do not need to be valid for these comparisons.
+
+   </body></html>
+

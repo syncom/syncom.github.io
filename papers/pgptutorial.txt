@@ -1,0 +1,359 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A Step-by-step Guide for PGP Beginners %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+Released by Phil Zimmermann in 1991, Pretty Good Privacy (PGP) is a computer 
+program that supports encryption and digital signing of files. PGP is used 
+by many to secure e-mail communications. PGP is free for personal use, but 
+not open source software. In this guide, we will walk you walk you through
+the basic, and thus perhaps most important, use cases of an open source 
+alternative to PGP, GNU Privacy Guard (GnuPG, or gpg). Specifically, we will
+show
+* How to create signing and encryption keys
+* How to export and import GPG keys 
+* How to uses keys to sign and encrypt files
+* How to submit keys to public key servers
+* Concepts of "web of trust" and "PGP key signing party"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+0. GnuPG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+GnuPG is a shell-based tool that comes with many of the prevailing Linux
+distributions such as Debian, Fedora, Ubuntu. Like PGP, GnuPG implements
+the OpenPGP standard (RFC4880, http://tools.ietf.org/html/rfc4880).
+
+Although multiple graphic user interfaces are available for GnuPG, throughout  
+this tutorial, we will perform operations using GnuPG version 1.4.9 from a 
+shell prompt, starting with '$'.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+1. Creation of Signing and Encryption Keys
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Enter
+
+$ gpg --cert-digest-algo=SHA256 --gen-key
+
+and you will see the following prompt screen 
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Please select what kind of key you want:
+   (1) DSA and Elgamal (default)
+   (2) DSA (sign only)
+   (5) RSA (sign only)
+Your selection? 
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+For a demonstration purpose, we will select the default option (1), which
+enables DSA (Digital Signature Algorithm) signing and Elgamal encryption.
+The following screen will then show up.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+DSA keypair will have 1024 bits.
+ELG-E keys may be between 1024 and 4096 bits long.
+What keysize do you want? (2048) 
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+As you can tell from the prompt, DSA keypair has been set as 1024-bit long,
+and it asks you for your desired Elgamal encryption key size. Select the 
+default 2048 bits, and you will see
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Requested keysize is 2048 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+Enter '0' (default) to set the keys as "never expire", and enter 'Y' when pgp
+asks for confirmation. Now it comes an important moment, when you are asked to
+enter your identity information. Proceed with care.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+You need a user ID to identify your key; the software constructs the user ID
+from the Real Name, Comment and Email Address in this form:
+    "Heinrich Heine (Der Dichter) <heinrichh@duesseldorf.de>"
+
+Real name: Ning Shang
+Email address: test_id@example.com
+Comment: GPG Demonstration
+You selected this USER-ID:
+    "Ning Shang (GPG Demonstration) <test_id@example.com>"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? 
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+Enter 'O' to confirm, and continue. You will be asked to enter a passphrase,
+which will be used to protect your private keys, whenever your private keys 
+are being used for signing or decryption.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Enter passphrase: 
+Repeat passphrase:
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+Type your passphrase carefully, twice, and keep it safe, either in mind or
+in any secure place. When the keys are being generated, randomly and wildly
+type on the keyboard, populate a media player to load a movie, perform some
+file operations, or do whatever you can think of to get enough entropy for
+creating the needed random bytes.
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+We need to generate a lot of random bytes. It is a good idea to perform
+some other action (type on the keyboard, move the mouse, utilize the
+disks) during the prime generation; this gives the random number
+generator a better chance to gain enough entropy.
+
+blah blah blah...
+
+
+gpg: key 396AE107 marked as ultimately trusted
+public and secret key created and signed.
+
+pub   1024D/396AE107 2010-01-20
+      Key fingerprint = 3798 37EB 0C2F 2B93 C293  81BE 2BF7 E43D 396A E107
+uid                  Ning Shang (GPG Demonstration) <test_id@example.com>
+sub   2048g/F904BF81 2010-01-20
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+By this time, the keypairs for signing and encryption are generated and stored
+in ~/.gnupg directory. Note that the Key-ID 396AE107, which is the last 8
+bytes of the key fingerprint, will be used to refer to the keys.
+
+It is important that you create a revocation certificate for the GPG keys that
+were just generated. A key revocation certificate will be used to cancel your
+keys in case you forget your passphrase, lose your keys, or have your keys 
+compromised.
+
+$ KEYID=396AE107
+$ gpg --output testkey_revoke.asc --gen-revoke $KEYID
+
+You will be asked some questions regarding the reason for revoking the keys,
+and will be required to enter your passphrase to create the revocation 
+certificate. Once the revocation certificate, file "testkey_revoke.asc" in
+this case, is created, keep it safe; store it in a flash drive or burn it into
+a CD/DVD, and lock it away somewhere.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+2. Export/Import Keys
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The keys generated in Section 1 are automatically stored in ~/.gnupg directory
+by default, and will be used by GPG for relevant operations. You can list the
+keys on your public and secret keyrings, respectively, by issuing the following
+commands.
+
+$ gpg --list-public-keys
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+pub   1024D/396AE107 2010-01-20
+uid                  Ning Shang (GPG Demonstration) <test_id@example.com>
+sub   2048g/F904BF81 2010-01-20
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+$ gpg --list-secret-keys
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+sec   1024D/396AE107 2010-01-20
+uid                  Ning Shang (GPG Demonstration) <test_id@example.com>
+ssb   2048g/F904BF81 2010-01-20
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+You can make an ASCII-armored version of your public key by entering the
+following command.
+
+$ gpg -a --output testkey_public.asc --export $KEYID
+
+Now a file "testkey_public.asc" containing your public keys is created,
+in which the key content is base-64 encoded. You can disseminate your public
+key file to the world by having it attached to your outgoing email, publishing
+it on your website or to a PGP key server (this topic will be covered later),
+or through any other means. 
+
+If you wish, you can also export your ASCII-armored private keys by issuing
+
+$ gpg -a --output testkey_private.asc --export-secret-key $KEYID
+
+As indicated by its name, a private/secret key is private/secret; after having
+a "private look" of the private key file and backing it up, destroy it.
+
+In order to verify a signed message from someone or send an encrypted message
+to someone, you need her public signature/encryption key. To import another
+person's public key to your public keyring, try
+
+$ gpg --import others_public_key.asc
+
+You can also import your own private key to your secret keyring by
+
+$ gpg --import testkey_private.asc
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+3. Encryption, decryption, sign/verification
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this section, you will be shown how to use GPG to encrypt, decrypt,
+sign and verify a message file. The plaintext file we will start with
+is "plaintext.txt".
+
+$ echo "My first tour to GPG." > plaintext.txt
+
+To encrypt "plaintext.txt" into an ASCII-armored cipher text file,
+
+$ gpg --encrypt -a --output ciphertext.txt plaintext.txt
+
+Enter the email address "test_id@example.com" of the recipient, yourself
+in this case
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+You did not specify a user ID. (you may use "-r")
+
+Current recipients:
+
+Enter the user ID.  End with an empty line: test_id@example.com
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+After seeing some information regarding the recipient's keys and proceeding,
+the cipher text file "ciphertext.txt" is created. To decrypt this file, try
+
+$ gpg --decrypt ciphertext.txt
+
+You will be asked for your passphrase to load your decryption key. Then the
+decrypted plaintext message will be shown at STDOUT.
+
+To sign "plaintext.txt", try
+
+$ gpg -u test_id@example.com --output plaintext.txt.sig \
+  --clearsign plaintext.txt
+
+Here "-u test_id@example.com" option is needed only if you have multiple
+keys in your secret keyring. What this option does is override --default-key
+to allow your choice of the signing key. Again, you will be asked to enter
+your passphrase in order to sign. The original plain text in clear text and
+the corresponding base-64 encoded signature are output to file 
+"plaintext.txt.sig".  
+
+To verify the signature, enter
+
+$ gpg --verify plaintext.txt.sig
+
+The verification result is output to STDOUT.
+
+
+* Warning: Do not try the following commands in this section unless you have
+  finished the tutorial. 
+
+To delete a public key from your public keyring
+
+$ gpg --delete-key $KEYID
+
+Note that if there is a private key with $KEYID in your secret keyring, then
+the previous deletion will fail, with error message
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+gpg: there is a secret key for public key "396AE107"!
+gpg: use option "--delete-secret-keys" to delete it first.
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+As indicated in the error message, the command to delete a private key from your
+secret keyring is
+
+$ gpg --delete-secret-key $KEYID
+
+You will then be asked twice to confirm this operation. Once a private key is 
+delete from your secret keying, you will not be able to use it to sign or 
+decrypt messages.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+4. Submitting public key to a key server
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+A convenient way to publish and manage your public keys is to use a PGP key
+server. "pgp.mit.edu" is a PGP key server that is publicly available. To
+send your public key to a key server, do
+
+$ KEYSERVER=pgp.mit.edu
+$ gpg --keyserver $KEYSERVER --send-keys $KEYID
+
+People now can get access to your public key through this key server. Several 
+other public PGP key servers are
+
+    http://www.keyserver.net
+    http://wwwkeys.pgp.net
+    http://keyserver.ubuntu.com
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+5. "Web of trust"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The concept of "web of trust" is a means adopted by OpenPGP-compatible systems 
+to establish a binding between a user's identity credentials (name, email, etc)
+and her public key. Unlike the hierarchical trust model of a public key 
+infrastructure, the web of trust can be visualized as a directed graph, in which
+a directed edge connects the source and destination of a trust relationship.
+There exist four trust levels in a PGP web of trust:
+
+- unknown
+  Nothing is known about the owner's judgment in key signing. Keys on your 
+  public keyring that you do not own initially have this trust level.
+
+- none
+  The owner is known to improperly sign other keys.
+
+- marginal
+  The owner understands the implications of key signing and properly 
+  validates keys before signing them.
+
+- full
+  The owner has an excellent understanding of key signing, and his signature 
+  on a key would be as good as your own.
+
+The GPG command line tool allows one to assign and adjust one's trust in a key's
+owner. Interested readers may refer to Section 4 of [5] for more details.
+
+The rules used by the web of trust to validate keys is the following:
+
+A key K is considered valid if it meets two conditions:
+1. it is signed by enough valid keys, meaning
+- you have signed it personally,
+- it has been signed by one fully trusted key, or
+- it has been signed by three marginally trusted keys; 
+and
+2.
+- the path of signed keys leading from K back to your own key is five steps or 
+  shorter.
+
+A way to actively get involved into the web of trust is to have your key signed
+by others or sign (your trusted) others keys. As it may directly affect, at
+least locally, the web of trust, signing a key is a relatively big 
+responsibility, and hence should be executed with care. The xkcd.com column 
+in [6] illustrates the severity of improperly signing another person's public 
+key.
+
+
+One way to sign a key or have your key signed is through a "key signing party",
+for which strict rules are to be followed. You can read more about a key 
+signing party in [3].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+6. References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[1] GnuPG manpage.
+[2] "Personal encryption." Linux Format Magazine 21, December 2001, pages
+32-33.
+[3]. "The Key Signing Party - How to". 
+http://www.cryptnet.net/fdp/crypto/keysigning_party/en/keysigning_party.html
+[4] GnuPrivacyGuardHowto. 
+https://help.ubuntu.com/community/GnuPrivacyGuardHowto
+[5] "The GNU Privacy Handbook." http://www.gnupg.org/gph/en/manual.html
+[6] "Responsible behavior". http://xkcd.com/364/
+
+
+Written by Ning Shang <syncom at gmail dot com>, 2010-01-20.
+Please let me know if you find any errors.

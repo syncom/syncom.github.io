@@ -1,0 +1,131 @@
+<html lang="en">
+<head>
+<title>Installation - The Genus 2 Crypto C++ Library v0.1.2</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Genus 2 Crypto C++ Library v0.1.2">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Overview.html#Overview" title="Overview">
+<link rel="next" href="Quick-start.html#Quick-start" title="Quick start">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Installation"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Quick-start.html#Quick-start">Quick start</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Overview.html#Overview">Overview</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">2 Installation</h2>
+
+<p>The G2HEC library is dependent of V. Shoup's NTL library, which can be found at
+<a href="http://www.shoup.net/ntl/">NTL: A Library for doing Number Theory</a>.
+
+   <p><br>
+The following procedure should work on Unix and Unix-like platforms. The
+installation has been tested on Linux and Solaris, and in Cygwin on Windows.
+
+   <p><br>
+To obtain the source code and documentation for G2HEC, download
+<a href="http://www.math.purdue.edu/~nshang/g2hec/">g2hec-lib-xxx.tar.gz</a>. 
+Here &ldquo;xxx&rdquo; denotes the current version number.
+
+<h3 class="section">2.1 General installation instructions</h3>
+
+<p>If the NTL library is installed in a standard system directory, then do the
+following:
+
+<pre class="example">     % gunzip g2hec-lib-xxx.tar.gz
+     % tar xvf g2hec-lib-xxx.tar
+     % cd g2hec-lib-xxx
+     % ./configure --prefix=$HOME/nssw
+     % make
+     % make check
+     % make install
+</pre>
+   <p><br>
+This will build, test and install G2HEC in <code>$HOME/nssw</code>.  You can change
+to a different location by specifying it with the  <code>--prefix=</code> option (the
+default is <code>/usr/local</code>).  After installation, you will find the G2HEC
+header files in
+<code>$HOME/nssw/include</code> and the compiled static library <code>libg2hec.a</code> in
+<code>$HOME/nssw/lib/</code>.
+
+<h3 class="section">2.2 NTL not in default location</h3>
+
+<p>If you have installed the NTL/GMP libraries into locations which require
+special include or library paths, you can pass them to <code>LDFLAGS</code> and
+<code>CXXFLAGS</code> variables for the configure script. 
+For example (for bash)
+
+<pre class="example">     % env LDFLAGS=-L$HOME/nssw/lib CXXFLAGS=-I$HOME/nssw/include ./configure
+     --prefix=$HOME/nssw
+</pre>
+   <p><br>
+Depending on whether GMP is found in the search path or not, the G2HEC library
+is configured to build with or without GMP.
+
+<h3 class="section">2.3 After G2HEC is built</h3>
+
+<p>After the library is built, executing <code>make check</code> runs some test
+programs.
+
+   <p><br>
+It is highly recommended to do this to make sure things went well.
+
+   <p><br>
+Executing <code>make install</code> copies a number of files to a directory
+<code>&lt;prefix&gt;</code>
+that you specify by passing <code>--prefix=&lt;prefix&gt;</code> as an argument
+to <code>configure</code> at configuration time, or as an argument to
+<code>make install</code> at installation time.  Recall that the default is
+<code>/usr/local</code>.
+
+   <p><br>
+To uninstall the library, execute <code>make uninstall</code>.
+
+   <p><br>
+To remove object files, execute <code>make clean</code>.
+
+   <p><br>
+Note that this installation process is almost standard.
+
+   <p><br>
+Assuming you have installed G2HEC as above, to compile program <code>myprog.C</code>
+that uses G2HEc, do
+
+<pre class="example">     % g++ -I&lt;prefix&gt;/include -I&lt;ntl_prefix&gt;/include -L&lt;prefix&gt;/lib \
+     -L&lt;ntl_prefix&gt;/lib myprog.c -o myprog -lg2hec -lntl -lm
+</pre>
+   <p><br>
+The binary file <code>myprog</code> is created.
+
+   <p><br>
+If you built NTL using GMP, do
+
+<pre class="example">     % g++ -I&lt;prefix&gt;/include -I&lt;ntl_prefix&gt;/include -L&lt;prefix&gt;/lib \
+     -L&lt;ntl_prefix&gt;/lib -L&lt;gmp_prefix&gt;/lib myprog.c -o myprog -lg2hec \
+     -lntl -lgmp -lm
+</pre>
+   <p><br>
+Of course, there is no need to duplicate the flags if some of the locations are
+the same, and you may leave out the corresponding flags if the locations are
+standard directories.
+
+   </body></html>
+

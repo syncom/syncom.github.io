@@ -1,0 +1,366 @@
+<html lang="en">
+<head>
+<title>Tutorial - The Genus 2 Crypto C++ Library v0.1.2</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Genus 2 Crypto C++ Library v0.1.2">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Quick-start.html#Quick-start" title="Quick start">
+<link rel="next" href="Genus-2-curve-functions.html#Genus-2-curve-functions" title="Genus 2 curve functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Tutorial"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Genus-2-curve-functions.html#Genus-2-curve-functions">Genus 2 curve functions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Quick-start.html#Quick-start">Quick start</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">4 Tutorial</h2>
+
+<p>We shall walk you through several cryptographic applications of G2HEC.
+
+<h3 class="section">4.1 HEC-Diffie-Hellman key exchange</h3>
+
+<p>The basic Diffie-Hellman key exchange protocol works as follows:
+
+   <p><br>
+Alice and Bob wish to agree on a secret random element over an insecure channel
+without having to exchange any information previously.
+
+   <p><br>
+They agree on an element P in the Jacobian of the genus 2 curve
+C with a large (known or unknown) order G.
+     <ol type=1 start=1>
+<li>Alice generates a random integer a \in {1, \ldots, \#G - 1}, then
+sends to Bob the element (divisor)
+<div align="center">Q_1 = [a] P.</div>
+
+     <li>Bob generates a random integer b \in {1, \ldots, \#G - 1}, then
+sends to Alice the element (divisor)
+<div align="center">Q_2 = [b] P.</div>
+
+     <li>Alice then computes
+<div align="center">[ab] P = [a] Q_2.</div>
+
+     <li>Similarly, Bob computes
+<div align="center">[ab] P = [b] Q_1.</div>
+        </ol>
+
+   <p><br>
+This element [ab] P now serves as the secret that only Alice and Bob
+know.
+
+   <p><br>
+We illustrate a local version of this protocol using a genus 2 curve over a
+prime field GF(p), for an educational purpose.
+
+   <p><br>
+First we include the header file g2hec_Genus2_ops.h:
+<pre class="example">     #include &lt;g2hec_Genus2_ops.h&gt;
+</pre>
+   <p><br>
+Then we define the maximum length (in decimal digits) of the prime number
+p to be 300:
+<pre class="example">     #undef MAX_STRING_LEN
+     #define MAX_STRING_LEN 300
+</pre>
+   <p><br>
+The following statement invokes the namespace used by the G2HEC library, and
+must be present for every client program.
+<pre class="example">     NS_G2_CLIENT
+</pre>
+   <p><br>
+In the main function, we first set the pseudo-random number generator seed, and
+allocate a string buffer for receiving a prime number
+input by the user:
+<pre class="example">     SetSeed(to_ZZ(1234567890));
+     char p[MAX_STRING_LEN];
+     
+     cin.getline(p, MAX_STRING_LEN);
+</pre>
+   <p><br>
+We declare and initialize an NTL big integer object <code>pZZ</code> to store this
+prime number:
+<pre class="example">     ZZ pZZ = to_ZZ(p);
+</pre>
+   <p><br>
+Now we initialize the underline prime field GF(p):
+<pre class="example">     field_t::init(pZZ);
+</pre>
+   <p><br>
+We shall declare and initialize several elements to hold the genus 2 curve,
+system parameters, keys and so on:
+<pre class="example">     ZZ a, b;
+     g2hcurve curve;
+     divisor P, Q1, Q2;
+</pre>
+   <p><br>
+Generate a random valid genus 2 curve:
+<pre class="example">     curve.random();
+</pre>
+   <p><br>
+Set curve for the divisors.  A curve needs only to be set once in a program
+to work for all divisors.
+<pre class="example">     P.set_curve(curve);
+</pre>
+   <p><br>
+To perform Diffie-Hellman key exchange, it is not necessary to know the order
+of P.  A fact is that this order is close to  p^2. So we choose
+a and b to be two random number bounded by p^2.
+<pre class="example">     RandomBnd(a, pZZ*pZZ);
+     RandomBnd(b, pZZ*pZZ);
+</pre>
+   <p><br>
+We generate a random base point P:
+<pre class="example">     P.random();
+</pre>
+   <p><br>
+Alice computes
+<pre class="example">     Q1 = a * P;
+</pre>
+   <p><br>
+Bob computes
+<pre class="example">     Q2 = b * P;
+</pre>
+   <p><br>
+A successful key exchange should yield the shared secret
+<div align="center">[ab]P = [a] Q_2 = [b] Q_1:</div>
+<pre class="example">     if ( b * Q1 == a * Q2)
+       cout &lt;&lt; "DH key exchange succeeded!" &lt;&lt; endl;
+     else
+       cout &lt;&lt; "DH key exchange failed!" &lt;&lt; endl;
+</pre>
+   <p><br>
+A complete source file for this example can be found in <code>example/dh.C</code>.
+
+<h3 class="section">4.2 HEC-ElGamal encryption</h3>
+
+<p>This example is similar to the Diffie-Hellman key exchange example.  Please
+refer to the source file in <code>examples/elgamal_enc.C</code> for details.
+
+<h3 class="section">4.3 HEC-ElGamal digital signature</h3>
+
+<p>We shall use G2HEC to build a digital signature scheme: the ElGamal digital
+signature.
+
+   <p><br>
+Recall how this signature scheme works:
+
+   <p><br>
+Bob chooses a genus 2 curve C and a prime number p so that the
+number of GF(p)-rational points of the Jacobian of C has a large
+prime factor N &ndash; preferably the number itself is prime. He then chooses
+a divisor g of order N, a secret private key x\in\1,
+\ldots, N - 1\, then computes a divisor h = [x] g. Bob publishes
+g and h as his public key.
+
+   <p><br>
+To sign a message m \in Z/(N), Bob first generates a random integer
+i \in {1, \ldots, N - 1}, and computes
+<div align="center">a = [k] g.</div>
+
+<p><br>
+Bob then computes a solution, b \in Z/(N) to the congruence
+<div align="center">m == x f(a) + b k (mod N) .</div>
+<p>Here f is a map from the Jacobian of C to Z/(N) which
+is almost injective.
+
+   <p><br>
+Bob sends the signature (a, b) together with the message m
+to Alice.
+
+   <p><br>
+Upon receiving the message and signature from Bob, Alice verifies the signature
+by checking that
+<div align="center">[f(a)] h + [b] a = [m] g</div>
+<p>holds.
+
+   <p><br>
+It needs to be point out that a technical aspect of this algorithm involves
+the choice of the curve C and the prime number p so that its
+Jacobian has an order divisible by a large prime number.  This is not a
+trivial task &ndash; it involves quite amount of mathematics.  Fortunately, there
+are published data that users can use directly to avoid this difficulty. 
+According to the paper &ldquo;Construction of Secure Random Curves of Genus 2
+over Prime Fields&rdquo; by Gaudry and Schost, we choose to use in our example
+the curve
+with p =  5 \cdot 10^24 + 850349.  The order of the Jacobian of the
+curve is a prime number
+<div align="center">N = 2499999999999413043860099940220946396619751607569,</div>
+<p>which is to our best interest.  In this case, we can pick any random non-unit
+divisor g as our base point.
+
+   <p><br>
+At this point, we are able present a local version of this signature scheme.
+
+   <p><br>
+As usual we include the header file <code>g2hec_Genus2_ops.h</code>:
+<pre class="example">     #include &lt;g2hec_Genus2_ops.h&gt;
+</pre>
+   <p><br>
+Then we define some macros that we are going to use, including the values of
+coefficients of the polynomial f, the prime number p, the group
+order of the Jacobian, and a function that maps a suitable value to an NTL
+<code>ZZ_p</code> object.
+
+<pre class="example">     #define f3 "2682810822839355644900736"
+     #define f2 "226591355295993102902116"
+     #define f1 "2547674715952929717899918"
+     #define f0 "4797309959708489673059350"
+     #define ps "5000000000000000008503491"
+     #define N "24999999999994130438600999402209463966197516075699"
+     
+     #define str_to_ZZ_p(x) to_ZZ_p(to_ZZ(x))
+</pre>
+   <p><br>
+Also we issue the statement
+<pre class="example">     NS_G2_CLIENT
+</pre>
+   <p><br>
+Recall that we need an almost bijection that maps elements in the Jacobian to
+an element in {1, \ldots, N - 1}.  This map can be chosen as follows:
+<pre class="example">     static ZZ from_divisor_to_ZZ(const divisor&amp; div, const ZZ&amp; n)
+     {
+       poly_t u = div.get_upoly();
+       ZZ temp = AddMod(sqr(rep(u.rep[0])), sqr(rep(u.rep[1])), n);
+       return ( IsZero(temp) ? to_ZZ(1) : temp );
+     }
+</pre>
+   <p>We just mention that we choose this function to take a divisor
+<div align="center">[u(x), v(x)]</div>
+<p>to the value defined by the sum of the squares of the degree 0 and degree 1
+coefficients modulo the group order N of the Jacobian.  Users can
+define their own such function to use.  Security might be affected by bad
+choice of this almost injective function.
+
+   <p><br>
+We start working on the <code>main</code> function by initializing the PRNG seed and
+declaring and define several values:
+<pre class="example">       SetSeed(to_ZZ(1234567890));
+     
+       ZZ p = to_ZZ(ps);
+     
+       field_t::init(p);
+     
+       ZZ order = to_ZZ(N);
+     
+       ZZ x, k, b, m;
+       // Private key x, random number k, parameter b, message m
+     
+       ZZ f_a;
+     
+       g2hcurve curve;
+     
+       divisor g, h, a;
+     
+       poly_t f;
+</pre>
+   <p><br>
+Then we manually assign values of polynomial f and define the
+corresponding genus 2 curve:
+<pre class="example">       SetCoeff(f, 5, 1);
+       SetCoeff(f, 4, 0);
+       SetCoeff(f, 3, str_to_ZZ_p(f3));
+       SetCoeff(f, 2, str_to_ZZ_p(f2));
+       SetCoeff(f, 1, str_to_ZZ_p(f1));
+       SetCoeff(f, 0, str_to_ZZ_p(f0));
+       curve.set_f(f);
+</pre>
+   <p><br>
+Then you update the curve information:
+<pre class="example">     curve.update();
+</pre>
+   <p>This will update some flags related to properties of the curve, and needs to
+be done immediately after manual assignments to the curve's defining elements
+(e.g., the polynomial f).
+
+   <p><br>
+Now we are ready to set the curve as the underlying curve of the divisors.
+<pre class="example">     g.set_curve(curve);
+</pre>
+   <p><br>
+We randomly choose the base point g, message m to be signed, the
+private key x, and the public key h:
+<pre class="example">       do {
+         g.random();
+       } while (g.is_unit());
+     
+       RandomBnd(m, order);
+     
+       do {
+         RandomBnd(x, order);
+       } while (IsZero(x));
+     
+       h = x * g;
+</pre>
+   <p>Note that we want the base point g to be any divisor except the unit
+divisor, and we do not allow the private key x to be 0.  This is what
+the do...while statements do.
+
+   <p><br>
+Now we shall generate the ElGamal signature (a, b):
+<pre class="example">       do {
+         RandomBnd(k, order);
+       } while (IsZero(k));
+     
+       a = k * g;
+     
+       f_a = from_divisor_to_ZZ(a, order);
+     
+       /* b = (m - x*f(a))/k mod N */
+       b = MulMod(m - x * f_a, InvMod(k, order), order);
+</pre>
+   <p>The element <code>f_a</code> holds the value f(a) given by the almost
+injection applied to the divisor a.
+
+   <p><br>
+Alright!  Now the most exciting moment has arrived &ndash; signature verification:
+<pre class="example">       if ( f_a * h + b * a == m * g )
+         cout &lt;&lt; "ElGamal signature verification succeeded!" &lt;&lt; endl;
+       else
+         cout &lt;&lt; "ElGamal signature verification failed!" &lt;&lt; endl;
+</pre>
+   <p><br>
+The complete source file can be found in <code>examples/elgamal_sig.C</code>.
+
+   <p><br>
+**************************************************************<br>
+In the following chapters, we will give a general overview of the G2HEC's
+programming interface. This includes:
+     <ul>
+<li>Functions related to genus 2 curve generation and manipulation
+
+     <li>Functions related to divisor generation and manipulation
+
+     <li>Divisor arithmetic functions
+
+     <li>Input and output functions
+
+     <li>Randomness functions
+
+     <!-- @item -->
+     <!-- Miscellaneous functions -->
+   </ul>
+
+   <p>All these interfaces are exported by <code>include/g2hec_Genus2_ops.h</code> unless
+otherwise specified. 
+**************************************************************
+
+   </body></html>
+

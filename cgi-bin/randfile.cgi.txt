@@ -1,0 +1,78 @@
+#!/usr/bin/perl -w
+#
+# This script generates a (binary) file of a chosen size
+# filled with random bytes
+#
+
+
+use strict;
+$|++;
+
+use CGI::Pretty ":standard";
+use CGI::Carp qw(fatalsToBrowser);
+use POSIX 'floor';
+
+## Final pass: generate file
+if ( my $filename = param('file_name') and 
+     my $file_size = param('file_size') and
+     my $unit = param('unit') ) 
+{
+
+    open STDERR, '/dev/null';
+    print header("application/octet-stream");
+    exec "dd if=/dev/urandom bs=$unit count=$file_size" ;
+    die "cannot exec dd: $!";
+}
+
+
+
+
+## Second pass: confirm and get file name
+if (my $file_size = param('file_size_0') 
+    and my $unit = param('unit_0') )
+{
+    $file_size = floor($file_size);
+    my $filename = "$file_size"."$unit";
+    print header, start_html("Confirm file download");
+    print h1("Confirm file download");
+
+    print start_form(-action => url()."/"."$filename".".bin");
+
+    print checkbox(-name => 'file_name', 
+                   -checked => 'checked', 
+                   -value => $filename, 
+                   -label => $filename.".bin");
+
+    print hidden(-name => 'file_size',
+                 -default => $file_size);
+    print hidden(-name => 'unit',
+                 -default => $unit eq 'KB' ? '1024' : '1M');
+
+
+    print submit(-name => 'submit_button',
+                 -value => 'download');
+    print button(-name => 'reset_button',
+                 -value => 'reset',
+                 -onClick => 'history.go(-1)');
+
+    print end_form, end_html;
+    exit 0;
+}
+
+## First pass: get user input
+
+print header, start_html("Enter a file size");
+print h1("Enter the size of the file you want");
+print start_form;
+print textfield(-name => "file_size_0", 
+                -default => 1,
+                -size => 4,
+                -maxlength => 4);
+print radio_group(-name => "unit_0",
+                  -values => ['KB', 'MB'],
+                  -default => 'MB',
+                  -columns => 1);
+print submit;
+print end_form, end_html;
+exit 0;
+

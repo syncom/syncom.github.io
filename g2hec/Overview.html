@@ -1,0 +1,143 @@
+<html lang="en">
+<head>
+<title>Overview - The Genus 2 Crypto C++ Library v0.1.2</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Genus 2 Crypto C++ Library v0.1.2">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="index.html#Top" title="Top">
+<link rel="next" href="Installation.html#Installation" title="Installation">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Overview"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Installation.html#Installation">Installation</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="index.html#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">1 Overview</h2>
+
+<h3 class="section">1.1 What is G2HEC?</h3>
+
+<p>The G2HEC (Genus 2 HyperElliptic Curve) library is a free portable C++ library
+providing divisor group operations in the Jacobian of genus 2 (imaginary)
+hyperelliptic curve.  Such curves can be used for discrete-logarithm-based
+cryptosystems with advantages over elliptic curves (genus 1 curves).  Divisor
+group operations are essential to using genus 2 curves for cryptography.
+
+<!-- %** line break -->
+   <p><br>
+It is built on top of V. Shoup's NTL library, "a high performance, portable C++
+library providing data structures and algorithms for arbitrary length integers;
+for vectors, matrices, and polynomials over the integers and over finite
+fields; and for arbitrary precision floating point arithmetic."
+
+   <p><br>
+It is recommended to build NTL using GMP (the GNU Multi-Precision package) for
+best performance.  However, the G2HEC library can be built and used with and
+without the existence of GMP.
+
+   <p><br>
+This library does not assume users' familiarity with any non-trivial math
+background except basic concepts of finite fields and polynomials.  No prior
+knowledge of genus 2 curve is needed to used the library.
+
+   <p><br>
+The G2HEC library is released under the GNU General Public License.  See the
+file COPYING for details.
+
+   <p><br>
+The G2HEC library homepage: <a href="http://www.math.purdue.edu/~nshang/g2hec/">http://www.math.purdue.edu/~nshang/g2hec/</a>.
+
+   <p><br>
+The NTL library homepage: <a href="http://www.shoup.net/ntl/">http://www.shoup.net/ntl/</a>.
+
+   <p><br>
+The GMP library homepage: <a href="http://www.swox.com/gmp/">http://www.swox.com/gmp/</a>.
+
+<h3 class="section">1.2 Genus 2 curve basics</h3>
+
+<p>Our object of interest, a genus 2 curve, is a nonsingular algebraic curve
+<div align="center">C: y^2 + h(x)y = f(x)</div>
+<p>over a finite field GF(q), where f(x) is monic (i.e.,
+has leading coefficient 1) of degree 5, h(x) has degree not greater
+than 2, q is a prime or a power of a prime.
+
+   <p><br>
+Currently (version 0.1) G2HEC only supports odd prime q by default. 
+You can &ldquo;hack&rdquo; the header file in <code>include/g2hec_nsfieldtype.h</code> to
+switch its support to q as a power of an odd prime.  However, we do not
+recommend to do so and it should be avoided except in extreme cases. So far
+the library is tested only for odd prime numbers q.
+
+   <p><br>
+There is currently no &ldquo;hack&rdquo; to have field types <code>GF2</code> and <code>GF2E</code>
+supported (curve singularity test does not work for characteristic 2 yet). 
+Support for characteristic 2 maybe added in the future.
+
+   <p><br>
+A pair (x_0, y_0) with x_0, y_0\in GF(q) such that
+x = x_0 and y = y_0 give a solution to the curve equation of
+C is called a <b>GF(q)-rational point of the genus 2 curve
+C</b>. 
+Obviously, C has only finitely many GF(q)-rational points. 
+Unlike the case of elliptic curves, the set of GF(q)-rational points
+of the curve C does not naturally hold a group structure, therefore they
+cannot be used directly to do discrete-logarithm-based cryptography. 
+Instead, we choose to use the <b>GF(q)-rational points of the Jacobian</b>
+of the curve
+C, which is a finite group, to achieve our (cryptographic) goal. 
+It is not necessary for the users of the G2HEC library know how the Jacobian
+of a genus 2 curve is defined, given the following two facts:
+     <ol type=1 start=1>
+<li>The GF(q)-rational points of the Jacobian of a genus 2 curve C,
+Jac(C, GF(q)), is a finite group of size approximately q^2.
+
+     <li>An element of Jac(C, GF(q)) is called a <b>divisor class</b> (<b>divisor</b>
+in short) over GF(q). A divisor (class) D is represented by a
+pair of polynomials [u(x), v(x)] over GF(q). Several conditions
+need to be satisfied for a pair [u(x), v(x)] to be a divisor of
+C.
+        </ol>
+
+   <p><br>
+The unit element of Jac(C, GF(q)) is [1, 0].
+
+   <p><br>
+By convention, the group operation in the Jacobian of the curve C is
+written additively. We shall write
+<div align="center">D=D_1+D_2, D=D_1-D_2, D=[n]D_1</div>
+<p>for <b>divisor addition, divisor subtraction</b> and <b>divisor scalar
+multiplication</b>, respectively, where D=[n]D_1 means
+D=D_1+D_1+...+D_1 for n times.
+
+   <p><br>
+More information about the math background of the Jacobian of genus 2 curves
+can be found in the book &ldquo;Handbook of Elliptic And Hyperelliptic Curve
+Cryptography&rdquo; by Cohen et al.
+
+   <p><br>
+In addition to the high-level functions that operates on curves and divisors,
+the G2HEC library also exports low-level functions that allow knowledgeable
+users to take control of mathematical factors of curves and divisors. Our
+intent is to make the library useful for both mathematicians and cryptographers
+(or the ones who play both roles).
+
+   </body></html>
+

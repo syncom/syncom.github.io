@@ -1,0 +1,44 @@
+<html lang="en">
+<head>
+<title>Some issues - The Genus 2 Crypto C++ Library v0.1.2</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Genus 2 Crypto C++ Library v0.1.2">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Randomness-functions.html#Randomness-functions" title="Randomness functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Some-issues"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Randomness-functions.html#Randomness-functions">Randomness functions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">10 Some issues</h2>
+
+<p>Most functions in the G2HEC are reentrant, with exception of functions
+that set the associate curve for a divisor, such as
+<code>divisor::set_curve</code> and a constructor of the <code>divisor</code> class. 
+It is considered an unchecked programming error to change the associated
+curve when performing divisor operations.
+
+<!-- %** end of body of the document -->
+<!-- %** End of the document -->
+<!-- %** end of end of the document -->
+</body></html>
+

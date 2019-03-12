@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+<title>Randomness functions - The Genus 2 Crypto C++ Library v0.1.2</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Genus 2 Crypto C++ Library v0.1.2">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="I_002fO.html#I_002fO" title="I/O">
+<link rel="next" href="Some-issues.html#Some-issues" title="Some issues">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Randomness-functions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Some-issues.html#Some-issues">Some issues</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="I_002fO.html#I_002fO">I/O</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">9 Randomness functions</h2>
+
+<p>The G2HEC library uses NTL's pseudo-random number generator for generating
+functions that output random values.  It is recommended to override the
+default seed by calling
+<div align="center"><code>NTL::SetSeed( seed )</code></div>
+<p>to set the PRNG seed using a <code>ZZ</code> object <code>seed</code> if you are to
+do serious cryptographic applications which use the G2HEC's randomness
+functions.
+
+   <p><br>
+The G2HEC library exports in <code>include/g2hec_rand.h</code> a function
+<div align="center"><code>ZZ g2hec_rand()</code>,</div>
+<p>which obtains a random <code>ZZ</code> object of 128-bit integer by trying
+to use the file /dev/urandom as a source of random bits; if it fails,
+then 0 is returned.
+
+   <p><br>
+User can set its own random seed, or call
+<div align="center"><code>NTL::SetSeed(g2hec_rand())</code></div>
+<p>to generate one.
+
+   <p><br>
+The class <code>g2hcurve</code> has a member function to generate a random
+valid genus 2 curve.
+
+   <p><br>
+<code>g2hcurve&amp; random()</code>: <br>
+generates a random valid genus 2 curve.
+
+   <p><br>
+The class <code>divisor</code> has two member functions to generate random
+valid divisors, if the associated curve is valid.
+
+   <p><br>
+<code>divisor&amp; random()</code>: <br>
+If the associated curve is valid, sets the divisor to a random valid
+divisor of degree 2, i.e., \degu = 2.
+
+   <p><br>
+<code>divisor&amp; random(divdeg_t dgr)</code>: <br>
+If the associated curve is valid, sets divisor to a random valid divisor
+of degree <code>dgr</code>, where <code>dgr</code> takes values 1 (DEGREE_1) or
+2 (DEGREE_2).
+
+   <p><br>
+Note that <code>divisor.random()</code> never returns a unit divisor [1, 0].
+
+   </body></html>
+
